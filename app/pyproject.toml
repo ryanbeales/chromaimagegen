@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "accelerate>=1.8.1",
-    "bitsandbytes>=0.46.1",
     "diffusers>=0.34.0",
     "fastapi>=0.116.0",
     "optimum-quanto>=0.2.7",
