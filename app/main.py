@@ -111,11 +111,12 @@ async def generate_image(request: ImageRequest):
 
         # Save the generated image to disk
         image = output.images[0]
-        image_path = os.path.join("/images", f"{uuid.uuid4()}.png")
+        image_filename = f"{uuid.uuid4()}.png"
+        image_path = os.path.join(settings.image_dir, image_filename)
         image.save(image_path)
 
         # Return the image location and seed value in the response
-        return {"image_url": image_path}
+        return {"image_url": f"/images/{image_filename}"}
     except Exception as e:
         if isinstance(e, HTTPException):
             raise e
