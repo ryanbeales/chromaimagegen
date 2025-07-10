@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.concurrency import run_in_threadpool
 from asyncio import Lock
+from starlette.responses import FileResponse 
 
 
 # Request object and settings
@@ -88,7 +89,11 @@ def startup_event():
 
 @api.get("/")
 def get_root():
-    return {"message": "Welcome to the Image Generation Server!"}
+    return FileResponse("ui/image_generator.html")
+
+@api.get("/health")
+def get_health():
+    return {"status": "ok"}
 
 # Endpoint to generate an image based on the request
 @api.post("/generate-image")

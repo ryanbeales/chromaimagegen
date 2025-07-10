@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 2000px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .size-controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .size-group {
+            flex: 1;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 18px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .generated-image {
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+
+        .error {
+            display: none;
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #fcc;
+        }
+
+        .success-message {
+            color: #2d5a2d;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chroma Image Generator</h1>
+        
+        <form id="imageForm">
+            <div class="form-group">
+                <label for="prompt">Image Prompt *</label>
+                <textarea 
+                    id="prompt" 
+                    name="prompt" 
+                    placeholder="Describe the image you want to generate..."
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="negative_prompt">Negative Prompt (Optional)</label>
+                <textarea 
+                    id="negative_prompt" 
+                    name="negative_prompt" 
+                    placeholder="Things to avoid in the image..."
+                >low quality, bad anatomy, extra digits, missing digits, extra limbs, missing limbs, mutated hands and fingers, poorly drawn hands and fingers, poorly drawn face, mutation, deformed, blurry, out of focus, long neck, long body, long arms, long legs, long fingers, long toes</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Image Dimensions</label>
+                <div class="size-controls">
+                    <div class="size-group">
+                        <label for="width">Width</label>
+                        <input type="number" id="width" name="width" value="512" min="128" max="1024" step="64">
+                    </div>
+                    <div class="size-group">
+                        <label for="height">Height</label>
+                        <input type="number" id="height" name="height" value="512" min="128" max="1024" step="64">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="generate-btn" id="generateBtn">
+                Generate Image
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Generating your image...</div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <div class="success-message">✨ Image generated successfully!</div>
+            <img id="generatedImage" class="generated-image" alt="Generated image">
+            <br>
+            <button type="button" class="reset-btn" onclick="resetForm()">Generate Another Image</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('imageForm');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const generateBtn = document.getElementById('generateBtn');
+        const generatedImage = document.getElementById('generatedImage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Hide previous results
+            error.style.display = 'none';
+            result.style.display = 'none';
+            
+            // Show loading
+            loading.style.display = 'block';
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            try {
+                // Get form data
+                const formData = new FormData(form);
+                const requestData = {
+                    prompt: formData.get('prompt'),
+                    negative_prompt: formData.get('negative_prompt'),
+                    width: parseInt(formData.get('width')),
+                    height: parseInt(formData.get('height'))
+                };
+
+                // Make API request
+                const response = await fetch('/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Hide loading
+                loading.style.display = 'none';
+                
+                // Show result
+                if (data.image_url) {
+                    generatedImage.src = data.image_url;
+                    generatedImage.onload = () => {
+                        result.style.display = 'block';
+                    };
+                    generatedImage.onerror = () => {
+                        throw new Error('Failed to load generated image');
+                    };
+                } else {
+                    throw new Error('No image URL received from server');
+                }
+
+            } catch (err) {
+                // Hide loading
+                loading.style.display = 'none';
+                
+                // Show error
+                error.textContent = `Error: ${err.message}`;
+                error.style.display = 'block';
+                
+                console.error('Error generating image:', err);
+            } finally {
+                // Re-enable button
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Image';
+            }
+        });
+
+        function resetForm() {
+            result.style.display = 'none';
+            error.style.display = 'none';
+            form.reset();
+            
+            // Reset default values
+            document.getElementById('width').value = '512';
+            document.getElementById('height').value = '512';
+            document.getElementById('negative_prompt').value = 'low quality, bad anatomy, extra digits, missing digits, extra limbs, missing limbs, mutated hands and fingers, poorly drawn hands and fingers, poorly drawn face, mutation, deformed, blurry, out of focus, long neck, long body, long arms, long legs, long fingers, long toes';
+        }
+
+        // Auto-resize textarea
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        });
+    </script>
+</body>
+</html> 
