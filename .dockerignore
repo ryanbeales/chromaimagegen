@@ -1,3 +1,5 @@
 app/__pycache__
 app/.venv
 app/.env
+app/model_cache
+app/image_dir

@@ -3,3 +3,5 @@ app/.venv
 model_cache
 image_dir
 app/.env
+app/model_cache
+app/image_dir

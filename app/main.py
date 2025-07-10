@@ -50,10 +50,6 @@ class SharedPipeline:
         # Create the pipeline, will automatically download the model if not cached already, and will load layers in to the GPU. device_map="balanced" will 
         # try to fill GPU memory first then use CPU or disk after.
         self.pipeline = ChromaPipeline.from_pretrained(settings.model, torch_dtype=torch.bfloat16, device_map="balanced", cache_dir=settings.model_cache_dir)
-        
-        # If mps was discovered, we have to move the pipeline to the mps device.
-        if self.device == "mps":
-            self.pipeline.to("mps")
 
     async def generate(self, prompt: str, negative_prompt: str = "", width: int = 512, height: int = 512, num_inference_steps: int = 15):
         if not self.pipeline:
