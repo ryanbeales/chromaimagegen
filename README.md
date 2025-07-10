@@ -1,7 +1,18 @@
 # Example Chroma image generation server
 A simple example of a python image generation server using huggingface diffusers pipelines. The image generation can be slow depending on the hardware and model used. The intent for this is to be a backend service for generating images with another service in front of this to handle the long connection times required and routing to different model types.
 
-## Setup
+## Running with docker
+Quick start
+```
+mkdir model_cache && mkdir image_dir
+docker run --gpus=all -v $(pwd):/model_cache -v $(pwd)/image_dir:/image_dir  -it --rm -p 8000:8000 ghcr.io/ryanbeales/chromaimagegen
+```
+
+Open the swagger UI to test http://localhost:8000/docs
+
+Node the speed/requirements below before just blindly starting this.
+
+## Local Setup
 Install `uv` by following https://docs.astral.sh/uv/getting-started/installation/
 
 Install python 3.12 (required for sentencepiece at time of writing)
