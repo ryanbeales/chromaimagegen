@@ -11,8 +11,8 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
 # File handling and temporary directories
-import tempfile
 import os
+import uuid
 
 # Generate the seed for image generation
 import random
@@ -98,15 +98,6 @@ async def generate_image(request: ImageRequest):
         if not shared_pipeline.pipeline:
             raise HTTPException(status_code=500, detail="Image generation pipeline is not initialized.")
         
-        # # Use the shared pipeline scheduler
-        # scheduler = shared_pipeline.pipeline.scheduler.from_config(shared_pipeline.pipeline.scheduler.config)
-        # # Create a pipeline using the shared pipeline
-        # pipeline = ChromaPipeline.from_pipe(shared_pipeline.pipeline, scheduler=scheduler)
-        # generator = torch.Generator(device=shared_pipeline.device)
-
-        # Set the seed for image generation, this will be passed back in the response so we can reproduce the image later.
-        seed = random.randint(0, 2**32 - 1)
-
         # Run the image generation in a separate thread to avoid blocking the fastapi event loop.
         output = await run_in_threadpool(
             lambda: shared_pipeline.pipeline(
@@ -120,11 +111,11 @@ async def generate_image(request: ImageRequest):
 
         # Save the generated image to disk
         image = output.images[0]
-        image_path = os.path.join(settings.image_dir, f"generated_image_{seed}.png")
+        image_path = os.path.join("/images", f"{uuid.uuid4()}.png")
         image.save(image_path)
 
         # Return the image location and seed value in the response
-        return {"image_url": image_path, "seed": seed}
+        return {"image_url": image_path}
     except Exception as e:
         if isinstance(e, HTTPException):
             raise e
