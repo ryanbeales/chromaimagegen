@@ -8,7 +8,7 @@ mkdir model_cache && mkdir image_dir
 docker run --gpus=all -v $(pwd):/model_cache -v $(pwd)/image_dir:/image_dir  -it --rm -p 8000:8000 ghcr.io/ryanbeales/chromaimagegen
 ```
 
-Open the swagger UI to test http://localhost:8000/docs
+Open the swagger UI to test http://localhost:8000/docs or use the simple UI http://localhost:8000/
 
 Note the speed/requirements below before just blindly starting this.
 
@@ -44,7 +44,7 @@ Start server locally (`export` for linux/macos or `set` if you're on windows):
 uv run uvicorn main:api --host 0.0.0.0 --port 8000 --env-file=.env
 ```
 
-Open the swagger UI to test at http://localhost:8000/docs
+Open the swagger UI to test at http://localhost:8000/docs or use the simple UI http://localhost:8000/
 
 ## Local testing with docker (windows/linux only)
 Adjust your volume mounts depending on which system you're on (windows/macos/linux etc)
