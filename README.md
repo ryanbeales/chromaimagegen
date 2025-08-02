@@ -66,6 +66,3 @@ On a 4090, with a high speed internet connection things will take (roughly):
 On an M3 Mac, expect model operations to be _much_ slower, in the order of ~5 minutes per image generation.
 
 The default model requries ~20GB of disk space and GPU memory. It can be overriden by setting the `MODEL` environment variable but this is a [ChromaPipeline](https://huggingface.co/docs/diffusers/main/en/api/pipelines/chroma) so only [Chroma](https://huggingface.co/lodestones/Chroma) models should be used.
-
-# Issues
-- Multiple requests can run at once, but all will fail. Tried adding some locking but will review this later.
