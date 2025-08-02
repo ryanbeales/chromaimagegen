@@ -41,7 +41,7 @@ mkdir model_cache && mkdir image_dir
 
 Start server locally (`export` for linux/macos or `set` if you're on windows):
 ```
-uv run uvicorn main:api --host 0.0.0.0 --port 8000 --env-file=.env
+uv run uvicorn main:api --host 0.0.0.0 --port 8000
 ```
 
 Open the swagger UI to test at http://localhost:8000/docs or use the simple UI http://localhost:8000/
