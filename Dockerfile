@@ -13,7 +13,7 @@ RUN uv python install 3.12
 COPY ./app/.python-version /app/.python-version
 COPY ./app/uv.lock /app/uv.lock
 COPY ./app/pyproject.toml /app/pyproject.toml
-
+COPY ./app/logging.yaml /app/logging.yaml
 # Sync proejct dependencies
 RUN uv sync --frozen
 
@@ -21,4 +21,4 @@ RUN uv sync --frozen
 # Copy the rest of the project into the image
 ADD ./app/ /app
 
-CMD ["uv", "run", "uvicorn", "main:api", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "main:api", "--host", "0.0.0.0", "--port", "8000", "--log-config", "logging.yaml", "--no-use-colors"]
